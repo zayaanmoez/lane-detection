@@ -8,8 +8,8 @@ class DataSet():
         self.path_config = config.path
         self.path_root = config.path.root[dataset]
         self.input_width = config.params.input_width
-        self.input_height = config.params.input_height
-
+        self.input_height = config.params.input_height 
+        self.random_sample = []
 
     def load_dataset(self):
         data_file = self.path_root+self.dataset_name+"_data.txt"
@@ -32,15 +32,17 @@ class DataSet():
         path_binary = self.path_root+self.path_config.image.binary
         path_instance = self.path_root+self.path_config.image.instance
         ext = self.path_config.image.ext
-
-        random_sample = np.random.permutation(self.num_files)
         
         files, i = 0, 0
         while files < batch_size:
+            if len(self.random_sample) < 1:
+                print("Generating random sample.")
+                self.random_sample = np.random.permutation(self.num_files)
+
             try:
-                src_img = cv.imread(path_src+str(random_sample[i])+ext, cv.IMREAD_COLOR)
-                binary_img = cv.imread(path_binary+str(random_sample[i])+ext, cv.IMREAD_GRAYSCALE)
-                instance_img = cv.imread(path_instance+str(random_sample[i])+ext, cv.IMREAD_GRAYSCALE)
+                src_img = cv.imread(path_src+str(self.random_sample[i])+ext, cv.IMREAD_COLOR)
+                binary_img = cv.imread(path_binary+str(self.random_sample[i])+ext, cv.IMREAD_GRAYSCALE)
+                instance_img = cv.imread(path_instance+str(self.random_sample[i])+ext, cv.IMREAD_GRAYSCALE)
             except:
                 i += 1
                 continue

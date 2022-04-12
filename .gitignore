@@ -14,3 +14,4 @@ test_set
 train_set
 data/train
 data/test
+test_results/

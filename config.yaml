@@ -4,16 +4,16 @@ params:
 
   batch_size: 5
   epochs: 20000
-  learning_rate: 0.0001
-  decay_steps: 500
-  decay_rate: 0.0005
-  momentum: 0.9
+  learning_rate: 0.001
+  decay_steps: 1000
+  decay_rate: 0.9
 
   ex_train:
     epochs: 30
 
   test:
-    batch_size: 4
+    batch_size: 5
+    epochs: 1
 
 image:
   train_size: [512, 256]
@@ -34,10 +34,15 @@ path:
     ex-train: "example_set/train/"
     ex_test: "data/example/test/"
   # Model weight folder
-  model: "model/example_set/test/"
+  models: "models/"
   # Image processing and preparing data dir
   image:
     src: "image/"
     binary: "binary/"
     instance: "instance/"
+    results: "results/"
     ext: ".jpg"
+  test_results: "test_results/"
+  test:
+    src: "image/"
+    result: "result/"
