@@ -2,6 +2,7 @@ venv
 .idea
 .ipynb_checkpoints
 .vs
+__pycache__
 tmp/
 video/
 models/

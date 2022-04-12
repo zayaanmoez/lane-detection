@@ -1,79 +1,67 @@
-import os
-import json
 import numpy as np
 import cv2 as cv
-import matplotlib.pyplot as plt
+import os
+
+class DataSet():
+    def __init__(self, dataset, config):
+        self.dataset_name = dataset
+        self.path_config = config.path
+        self.path_root = config.path.root[dataset]
+        self.input_width = config.params.input_width
+        self.input_height = config.params.input_height
 
 
-# Process the dataset for training and testing
-#   data_type: "train", "test", "ex_train", "ex_test"
-#   train and test use the TuSimple dataset
-#   ex_train and ex_test use the example dataset
+    def load_dataset(self):
+        data_file = self.path_root+self.dataset_name+"_data.txt"
+        assert os.path.isdir(self.path_root) and os.path.isfile(data_file), "Dataset not found."
 
-train_labels = ["label_data_0313.json", "label_data_0531.json", "label_data_0601.json"]
-test_labels = ["test_label.json"]
-example_labels = ["example_label.json"]
+        with open(self.path_root+self.dataset_name+"_data.txt", 'r') as f:
+            f.readline()
+            self.num_files = int(f.readline().split()[1])
+            f.close()
 
-root = {"train": "data/train/", "test": "data/test/", "ex_train": "data/example/train/", "ex_test": "data/example/test/"}
-dataset = {"train": "train_set/", "test": "test_set/", "ex_train": "example_set/train/", "ex_test": "example/test/"}
-json_labels = {"train": train_labels, "test": test_labels, "ex_train": example_labels, "ex_test": example_labels}
+        print("Dataset loaded. Number of files:", self.num_files)
 
 
-def process_dataset(data_type="ex_test"):
-    path_root = root[data_type]
-    path_dataset = dataset[data_type]
+    def next_batch(self, batch_size):
+        src_imgs = []
+        binary_imgs = []
+        instance_imgs = []
 
-    # Colors for lane instance embedding
-    lane_colors = [(0,0,204), (0,204,204), (0,204,0), (204,204,0), (204,0,0), (204,0,204)]
+        path_src =self.path_root+self.path_config.image.src
+        path_binary = self.path_root+self.path_config.image.binary
+        path_instance = self.path_root+self.path_config.image.instance
+        ext = self.path_config.image.ext
 
-    # Create the data directories
-    os.makedirs(os.path.dirname(path_root), exist_ok=True)
-    os.makedirs(os.path.dirname(path_root+"image/"), exist_ok=True)
-    os.makedirs(os.path.dirname(path_root+"binary/"), exist_ok=True)
-    os.makedirs(os.path.dirname(path_root+"instance/"), exist_ok=True)
-
-    imgCtr = 0
-    # Load the dataset
-    for labels_json in json_labels[data_type]:
-        labels = [json.loads(line) for line in open(path_dataset + labels_json)]
-
-        # Create the train/test data 
-        for label in labels:
+        random_sample = np.random.permutation(self.num_files)
+        
+        files, i = 0, 0
+        while files < batch_size:
             try:
-                lanes = label["lanes"]
-                h_samples = label["h_samples"]
-                raw_file = label["raw_file"]
-
-                # Get the lane points from h_samples and lanes
-                lane_list = []
-                for lane in lanes:
-                    lane_points = []
-                    for (x, y) in zip(lane, h_samples):
-                        if x >= 0: lane_points.append([x, y])
-                    lane_list.append(np.array(lane_points, dtype=np.int32))
-
-                # Load the image
-                img = cv.imread(path_dataset + raw_file)
-                cv.imwrite(path_root + "image/" + str(imgCtr) + '.jpg', img)
-
-                # Polyline Annotations
-                binary = np.zeros(img.shape, dtype=np.uint8)
-                binary = cv.cvtColor(binary, cv.COLOR_BGR2GRAY)
-                cv.polylines(binary, np.array(lane_list, dtype=object), False, (255,255,255), 5)
-                cv.imwrite(path_root + "binary/" + str(imgCtr) + '.jpg', binary)
-
-                instance = np.zeros(img.shape, dtype=np.uint8)
-                lane_colors = [(0,0,204), (0,204,204), (0,204,0), (204,204,0), (204,0,0), (204,0,204)]
-                for i in range(len(lane_list)):
-                    cv.polylines(instance, np.array([lane_list[i]]), False, lane_colors[i], 5)
-                cv.imwrite(path_root + "instance/" + str(imgCtr) + '.jpg', instance)
+                src_img = cv.imread(path_src+str(random_sample[i])+ext, cv.IMREAD_COLOR)
+                binary_img = cv.imread(path_binary+str(random_sample[i])+ext, cv.IMREAD_GRAYSCALE)
+                instance_img = cv.imread(path_instance+str(random_sample[i])+ext, cv.IMREAD_GRAYSCALE)
             except:
-                print("Error json label: " + str(imgCtr))
-            imgCtr += 1
-            print("Images Processed: " + str(imgCtr), end="\r")
-    
-    with open(path_root + data_type + "_data.txt", "w") as f:
-        f.write("Dataset: " + data_type + "\n")
-        f.write("Images: " + str(imgCtr) + "\n")
+                i += 1
+                continue
 
-    print("Images Processed: " + str(imgCtr))
+            src_imgs.append(src_img)
+            binary_imgs.append(binary_img)
+            instance_imgs.append(instance_img)
+            files += 1 
+            i += 1
+
+        # Resize the batch images
+        src_imgs = [cv.resize(src_img, (self.input_width, self.input_height), 
+            interpolation=cv.INTER_AREA)
+            for src_img in src_imgs]
+
+        binary_imgs = [cv.resize(binary_img, (self.input_width, self.input_height),
+            interpolation=cv.INTER_AREA)
+            for binary_img in binary_imgs]
+
+        instance_imgs = [cv.resize(instance_img, (self.input_width, self.input_height),
+            interpolation=cv.INTER_AREA)
+            for instance_img in instance_imgs]
+
+        return src_imgs, binary_imgs, instance_imgs

@@ -1,0 +1,43 @@
+params:
+  input_height: 256
+  input_width: 512
+
+  batch_size: 5
+  epochs: 20000
+  learning_rate: 0.0001
+  decay_steps: 500
+  decay_rate: 0.0005
+  momentum: 0.9
+
+  ex_train:
+    epochs: 30
+
+  test:
+    batch_size: 4
+
+image:
+  train_size: [512, 256]
+  test_size: [512, 256]
+
+path:
+# Path config for raw dataset, train and test data
+  # Root folders with src and processed images for train and test
+  root:
+    train: "data/train/"
+    test: "data/test/"
+    ex-train: "data/example/train/"
+    ex_test: "data/example/test/"
+  # Tusimple dataset and labels
+  dataset:
+    train: "train_set/"
+    test: "test_set/"
+    ex-train: "example_set/train/"
+    ex_test: "data/example/test/"
+  # Model weight folder
+  model: "model/example_set/test/"
+  # Image processing and preparing data dir
+  image:
+    src: "image/"
+    binary: "binary/"
+    instance: "instance/"
+    ext: ".jpg"
