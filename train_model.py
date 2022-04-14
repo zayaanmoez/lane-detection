@@ -128,7 +128,7 @@ def train_model(dataset, config, model_name):
                     fit_history[key][0].append(epoch)
                     fit_history[key][1].append(value)
 
-        if epoch == 10000 or epoch == 15000:
+        if epoch == 5000 or epoch == 10000 or epoch == 15000:
             plot(fit_history)
 
     # Save the model
@@ -141,5 +141,13 @@ def train_model(dataset, config, model_name):
 
 if __name__ == "__main__":
     config = get_config()
-    train_model(TRAIN_DATASET, config, model_name="model#1")
+    train_model(EX_TRAIN_DATASET, config, model_name="model_test")
+
+    # Load and Save checkpoint
+    # checkpoint_filepath = "./tmp/cp.ckpt"
     
+    # lanenet = LaneNet(training=True, params=config.params)
+    # model = lanenet._build_model((config.params.input_height, config.params.input_width, 3))
+
+    # model.load_weights(checkpoint_filepath)
+    # model.save(config.path.models+"model#2")

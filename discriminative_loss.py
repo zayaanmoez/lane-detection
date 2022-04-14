@@ -1,10 +1,3 @@
-"""
-Implementation of LaneNet's Discriminative Loss function
-# @Time    : 18-5-11 下午3:48
-# @Author  : MaybeShewill-CV
-# @Site    : https://github.com/MaybeShewill-CV/lanenet-lane-detection
-# @File    : lanenet_discriminative_loss.py
-"""
 import tensorflow as tf
 import warnings
 warnings.filterwarnings('ignore')

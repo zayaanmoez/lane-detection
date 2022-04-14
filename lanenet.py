@@ -98,9 +98,6 @@ class LaneNet():
             x = layers.Conv2DTranspose(512, kernel_size=3, activation='relu', padding="same",
                 name="deconv_"+branch_name+"_1_2", kernel_regularizer=l2(0.0001), kernel_initializer=self.intializer)(x)
             x = layers.BatchNormalization()(x)
-            x = layers.Conv2DTranspose(512, kernel_size=3, activation='relu', padding="same",
-                name="deconv_"+branch_name+"_1_3", kernel_regularizer=l2(0.0001), kernel_initializer=self.intializer)(x)
-            x = layers.BatchNormalization()(x)
             x = layers.UpSampling2D(size=(2, 2), name="upsample_"+branch_name+"_1")(x)
             y = layers.Conv2D(512, kernel_size=3, activation='relu', padding="same",
                     kernel_regularizer=l2(0.0001), kernel_initializer=self.intializer)(self.encoder_states["shared_4"])
@@ -110,9 +107,6 @@ class LaneNet():
             x = layers.BatchNormalization()(x)
             x = layers.Conv2DTranspose(256, kernel_size=3, activation='relu', padding="same",
                 name="deconv_"+branch_name+"_2_2", kernel_regularizer=l2(0.0001), kernel_initializer=self.intializer)(x)
-            x = layers.BatchNormalization()(x)
-            x = layers.Conv2DTranspose(256, kernel_size=3, activation='relu', padding="same",
-                name="deconv_"+branch_name+"_2_3", kernel_regularizer=l2(0.0001), kernel_initializer=self.intializer)(x)
             x = layers.BatchNormalization()(x)
             x = layers.UpSampling2D(size=(2, 2), name="upsample_"+branch_name+"_2")(x)
             y = layers.Conv2D(256, kernel_size=3, activation='relu', padding="same",
@@ -124,18 +118,12 @@ class LaneNet():
             x = layers.Conv2DTranspose(128, kernel_size=3, activation='relu', padding="same",
                 name="deconv_"+branch_name+"_3_2", kernel_regularizer=l2(0.0001), kernel_initializer=self.intializer)(x)
             x = layers.BatchNormalization()(x)
-            x = layers.Conv2DTranspose(128, kernel_size=3, activation='relu', padding="same",
-                name="deconv_"+branch_name+"_3_3", kernel_regularizer=l2(0.0001), kernel_initializer=self.intializer)(x)
-            x = layers.BatchNormalization()(x)
             x = layers.UpSampling2D(size=(2, 2), name="upsample_"+branch_name+"_3")(x)
             y = layers.Conv2D(128, kernel_size=3, activation='relu', padding="same",
                     kernel_regularizer=l2(0.0001), kernel_initializer=self.intializer)(self.encoder_states["shared_2"])
             x = layers.Add()([x, y])
             x = layers.Conv2DTranspose(64, kernel_size=3, activation='relu', padding="same",
                 name="deconv_"+branch_name+"_4_1", kernel_regularizer=l2(0.0001), kernel_initializer=self.intializer)(x)
-            x = layers.BatchNormalization()(x)
-            x = layers.Conv2DTranspose(64, kernel_size=3, activation='relu', padding="same",
-                name="deconv_"+branch_name+"_4_2", kernel_regularizer=l2(0.0001), kernel_initializer=self.intializer)(x)
             x = layers.BatchNormalization()(x)
             x = layers.UpSampling2D(size=(2, 2), name="upsample_"+branch_name+"_4")(x)
             y = layers.Conv2D(64, kernel_size=3, activation='relu', padding="same",
@@ -184,9 +172,9 @@ class LaneNet():
         # lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(self.params.learning_rate, self.params.decay_steps, 
         #     self.params.decay_rate, staircase=True)
         # model.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=lr_schedule, momentum=0.9),
-        model.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=0.01, momentum=0.9, decay=0.01),
+        model.compile(optimizer=tf.keras.optimizers.SGD(learning_rate=0.05, decay=0.01, momentum=0.9),
             loss={"binary_segmentation": binary_segmentation_loss, "instance_segmentation": instance_segmentation_loss},
-            loss_weights={"binary_segmentation": 0.5, "instance_segmentation": 0.5},
+            loss_weights={"binary_segmentation": 1, "instance_segmentation": 1},
             metrics={"binary_segmentation": accuracy})
 
         return model

@@ -25,14 +25,14 @@ path:
   root:
     train: "data/train/"
     test: "data/test/"
-    ex-train: "data/example/train/"
+    ex_train: "data/example/train/"
     ex_test: "data/example/test/"
   # Tusimple dataset and labels
   dataset:
     train: "train_set/"
     test: "test_set/"
-    ex-train: "example_set/train/"
-    ex_test: "data/example/test/"
+    ex_train: "example_set/train/"
+    ex_test: "example_set/test/"
   # Model weight folder
   models: "models/"
   # Image processing and preparing data dir

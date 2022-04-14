@@ -54,8 +54,6 @@ def test_model(dataset, config, model_name):
     test_epochs = config.params.test.epochs
     file_ctr = 0
 
-    # argmax = np.vectorize((lambda x: np.argmax(x, axis=-1)))
-
     for epoch in range(test_epochs):
         src_imgs, binary_imgs, instance_imgs = test_dataset.next_batch(batch_size)
         
@@ -63,10 +61,11 @@ def test_model(dataset, config, model_name):
         binary_out = np.array([np.argmax(x, axis=-1) for x in binary_out])
 
         for idx, binary_img in enumerate(binary_out):
-            binary_img = postProcess(np.uint8(binary_img))
+            binary_img = postProcess(np.uint8(binary_imgs[idx]))
             lane_mask = create_lane_mask(binary_img, instance_out[idx])
-
+            
             src_img = src_imgs[idx]
+            
             output = cv.addWeighted(src_img, 1.0, lane_mask, 1.0, 0)
 
             cv.imwrite(path_results+config.path.image.src+"{}.jpg".format(file_ctr), src_img)
@@ -154,4 +153,4 @@ def create_lane_mask(binary_img, instance_img):
 
 if __name__ == "__main__":
     config = get_config()
-    test_model(TEST_DATASET, config, model_name="model#")
+    test_model(EX_TEST_DATASET, config, model_name="model#2")

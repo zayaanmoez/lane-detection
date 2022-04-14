@@ -14,4 +14,12 @@ test_set
 train_set
 data/train
 data/test
+data/example
+data/
 test_results/
+other/
+
+# Other
+postprocess.py
+other.py
+tusimple_ipm_remap.yml
